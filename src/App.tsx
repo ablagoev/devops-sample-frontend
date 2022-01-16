@@ -1,26 +1,80 @@
+import axios from 'axios';
+import CssBaseline from '@mui/material/CssBaseline';
+import * as H from 'history';
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { SnackbarProvider } from 'notistack';
+import { useLocation, useNavigate } from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import AppRoutes from './routes/AppRoutes'
+import Api from './Api';
+import AppContextWrapper from './context/App';
+import { AppContext, AppContextType } from './context/App';
+import User from './User';
+
+interface Props{
+	navigate: Function,
+	location: H.Location,
+};
+
+interface State {
+	context: AppContextType,
+	initialized: boolean
 }
 
-export default App;
+class App extends React.Component<Props, State> {
+
+	constructor(props: Props, state: State) {
+		super(props);
+
+		// Configuration of external libraries
+		axios.defaults.withCredentials = true;
+
+		this.state = { context: new AppContext(new Api(process.env.REACT_APP_API_ENDPOINT_URL as string), props.navigate, props.location), initialized: false };
+	}
+
+	componentDidMount() {
+		this.state.context.api.isAuthenticated()
+			.then((user) => {
+				this.state.context.setAuthenticated(user as User);
+				if (this.props.location.pathname === '/login') {
+					this.props.navigate('/');
+				}
+			})
+			.catch((error) => {
+				if (error.response.status === 401) {
+					if (this.props.location.pathname !== '/login') {
+						this.props.navigate('/login');
+					}
+				}
+
+				// Display generic backend error
+			})
+			.finally(() => {
+				this.setState((state, props) => {
+					return { initialized: true };
+				});
+			});
+	}
+
+	render() {
+		return (
+			<AppContextWrapper.Provider value={this.state.context}>
+				<CssBaseline />
+				<SnackbarProvider maxSnack={3}>
+					{ this.state.initialized && (
+						<AppRoutes />
+					)}
+				</SnackbarProvider>
+			</AppContextWrapper.Provider>
+		);
+	}
+}
+
+function WithNavigate(props: {}) {
+	const navigate = useNavigate();
+	const location = useLocation();
+
+	return <App {...props} navigate={navigate} location={location} />;
+}
+
+export default WithNavigate;
