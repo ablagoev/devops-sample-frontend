@@ -153,13 +153,9 @@ class Layout extends React.Component<Props, State> {
             }}
           >
             <Toolbar />
-            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  {this.props.children}
-                </Grid>
-              </Grid>
-            </Container>
+						<Grid item xs={12} sx={{ mt: 4, mb: 4, ml: 4, mr: 4 }}>
+							{this.props.children}
+						</Grid>
           </Box>
         </Box>
       </ThemeProvider>
