@@ -29,7 +29,8 @@ interface State {
     user_id: number;
     type: string;
     created_at: string;
-  }[];
+	}[];
+	version: string;
 }
 
 class Home extends React.Component<Props, State> {
@@ -39,7 +40,8 @@ class Home extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      activity: [],
+			activity: [],
+			version: '',
     };
   }
 
@@ -50,14 +52,32 @@ class Home extends React.Component<Props, State> {
         this.setState((state, props) => {
           return { activity: activity };
         });
-      });
+			});
+
+			this.context.api
+				.getBackendVersion()
+				.then((version: State["version"]) => {
+					this.setState((state, props) => {
+						return { version: version };
+					});
+				});
   }
 
   render() {
     return (
       <Layout>
         <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-          <h4>Hello, {this.context.getCurrentUser().name}</h4>
+					<Typography component="h4" variant="h4" gutterBottom>
+						Hello, {this.context.getCurrentUser().name}
+					</Typography>
+					<Typography component="h5" variant="h5" color="info" gutterBottom>
+						Frontend Version: {process.env.REACT_APP_APP_VERSION}
+					</Typography>
+					{this.state.version && (
+					<Typography component="h5" variant="h5" color="info" gutterBottom>
+						Backend Version: {this.state.version}
+					</Typography>
+					)}
           <Title>Last Logins</Title>
           <Table size="small">
             <TableHead>

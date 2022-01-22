@@ -21,6 +21,12 @@ this should point to the HTTP endpoint that serves the [backend](https://github.
 REACT_APP_API_ENDPOINT_URL=http://localhost:8000
 ```
 
+Additionally another environment variabe can be passed to the build process, for the frontend version:
+
+```
+REACT_APP_APP_VERSION=git-short-sha
+```
+
 ## Building
 
 In order to build the project, so that it can be served with an http server:

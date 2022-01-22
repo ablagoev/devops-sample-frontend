@@ -55,6 +55,20 @@ class Api {
 		return promise as Promise<{}>;
 	}
 
+	getBackendVersion() {
+		const promise = new Promise((resolve, reject) => {
+			this.makeGet('/api/version')
+				.then((response) => {
+					resolve(response.data.version);
+				})
+				.catch((error) => {
+					reject(error);
+				});
+			});
+
+		return promise as Promise<{}>;
+	}
+
 	private makeGet(url: string) {
 		return axios.get(this.endpoint + url);
 	}
